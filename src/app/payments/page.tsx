@@ -1,120 +1,65 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Layout from "@/components/layout/Layout";
-import { apiGet, erpApi } from "@/lib/api";
+import { erpApi } from "@/lib/api";
 
 export default function PaymentsPage() {
-  const [payments, setPayments] = useState<any[]>([]);
-  const [message, setMessage] = useState("");
+  const [rows, setRows] = useState<any[]>([]);
+  const [msg, setMsg] = useState("");
 
-  async function loadPayments() {
-    const res = await apiGet("getPayments");
-    setPayments(res?.data || []);
+  async function load() {
+    const res = await erpApi.payments();
+    setRows(res?.data || []);
   }
 
-  async function verify(paymentId: string) {
-    const res = await erpApi.verifyPayment(paymentId);
-
-    if (res?.success) {
-      setMessage("Payment verified successfully.");
-      loadPayments();
-    } else {
-      setMessage(res?.error || "Verification failed.");
-    }
+  async function verify(id: string) {
+    const res = await erpApi.verifyPayment(id);
+    setMsg(res?.success ? "Payment verified successfully." : res?.error || "Verification failed.");
+    await load();
   }
 
-  useEffect(() => {
-    loadPayments();
-  }, []);
+  async function reject(id: string) {
+    const res = await erpApi.rejectPayment(id);
+    setMsg(res?.success ? "Payment rejected." : res?.error || "Reject failed.");
+    await load();
+  }
+
+  useEffect(() => { load(); }, []);
 
   return (
-    <Layout>
-      <div className="space-y-6 text-slate-950">
-        <div>
-          <h1 className="text-4xl font-bold text-slate-950">
-            Payments
-          </h1>
+    <main className="min-h-screen bg-slate-100 p-8 text-slate-950">
+      <h1 className="text-4xl font-bold">Admin Payments</h1>
+      <p className="mt-2 text-slate-600">Verify customer payment submissions.</p>
 
-          <p className="mt-2 text-slate-600">
-            Verify customer payment submissions.
-          </p>
-        </div>
+      {msg && <p className="mt-4 rounded-xl bg-amber-50 p-4 text-amber-700">{msg}</p>}
 
-        {message && (
-          <div className="rounded-xl bg-amber-50 p-4 text-amber-700">
-            {message}
-          </div>
-        )}
-
-        <div className="overflow-auto rounded-2xl border border-slate-200 bg-white text-slate-950 shadow-sm">
-          <table className="w-full text-sm text-slate-950">
-            <thead className="bg-slate-100">
-              <tr>
-                <th className="p-4 text-left">Payment ID</th>
-                <th className="p-4 text-left">Order ID</th>
-                <th className="p-4 text-left">Customer</th>
-                <th className="p-4 text-left">Method</th>
-                <th className="p-4 text-left">Amount</th>
-                <th className="p-4 text-left">Status</th>
-                <th className="p-4 text-left">Proof</th>
-                <th className="p-4 text-left">Actions</th>
+      <div className="mt-8 overflow-auto rounded-2xl bg-white shadow-sm">
+        <table className="w-full text-sm text-slate-950">
+          <thead className="bg-slate-100">
+            <tr>{["Payment ID", "Order ID", "Customer", "Amount", "Status", "Proof", "Action"].map((h) => <th className="p-4 text-left" key={h}>{h}</th>)}</tr>
+          </thead>
+          <tbody>
+            {rows.map((p: any) => (
+              <tr className="border-t border-slate-200" key={p["Payment ID"]}>
+                <td className="p-4">{p["Payment ID"]}</td>
+                <td className="p-4">{p["Order ID"]}</td>
+                <td className="p-4">{p["Customer Name"]}</td>
+                <td className="p-4">{Number(p.Amount || 0).toLocaleString()} MMK</td>
+                <td className="p-4">{p["Verification Status"]}</td>
+                <td className="p-4">{p["Screenshot URL"] ? <a className="text-blue-600 underline" href={p["Screenshot URL"]} target="_blank">Open</a> : "-"}</td>
+                <td className="p-4">
+                  {p["Verification Status"] === "Pending" ? (
+                    <div className="flex gap-2">
+                      <button onClick={() => verify(p["Payment ID"])} className="rounded-full bg-emerald-600 px-4 py-2 font-bold text-white">Verify</button>
+                      <button onClick={() => reject(p["Payment ID"])} className="rounded-full bg-red-600 px-4 py-2 font-bold text-white">Reject</button>
+                    </div>
+                  ) : "Done"}
+                </td>
               </tr>
-            </thead>
-
-            <tbody>
-              {payments.map((p: any) => (
-                <tr
-                  key={p["Payment ID"]}
-                  className="border-t border-slate-200"
-                >
-                  <td className="p-4">{p["Payment ID"]}</td>
-                  <td className="p-4">{p["Order ID"]}</td>
-                  <td className="p-4">{p["Customer Name"]}</td>
-                  <td className="p-4">{p["Payment Method"]}</td>
-                  <td className="p-4">
-                    {Number(p.Amount || 0).toLocaleString()} MMK
-                  </td>
-                  <td className="p-4">
-                    {p["Verification Status"]}
-                  </td>
-
-                  <td className="p-4">
-                    {p["Screenshot URL"] ? (
-                      <a
-                        href={p["Screenshot URL"]}
-                        target="_blank"
-                        className="text-blue-600 underline"
-                      >
-                        Open
-                      </a>
-                    ) : (
-                      "-"
-                    )}
-                  </td>
-
-                  <td className="p-4">
-                    {p["Verification Status"] === "Pending" ? (
-                      <button
-                        onClick={() =>
-                          verify(p["Payment ID"])
-                        }
-                        className="rounded-full bg-emerald-600 px-4 py-2 font-semibold text-white"
-                      >
-                        Verify
-                      </button>
-                    ) : (
-                      <span className="text-slate-500">
-                        Completed
-                      </span>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+            ))}
+          </tbody>
+        </table>
       </div>
-    </Layout>
+    </main>
   );
 }
