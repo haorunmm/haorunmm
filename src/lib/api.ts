@@ -70,3 +70,4 @@ export const erpApi = {
   verifyPayment,
   rejectPayment,
 };
+export async function apiPost(action: string, data: Record<string, unknown>) { return apiPostRaw({ action, ...data }); }
