@@ -1,34 +1,34 @@
 "use client";
 
 import { ReactNode, useState } from "react";
-import { FormProvider, useForm } from "react-hook-form";
+import { FormProvider, useForm, type FieldValues } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import type { z } from "zod";
 import GlobalLoading from "./GlobalLoading";
 
-type Props<T extends z.ZodTypeAny> = {
-  schema: T;
-  defaultValues?: Partial<z.infer<T>>;
+type Props = {
+  schema: z.ZodTypeAny;
+  defaultValues?: FieldValues;
   children: ReactNode;
   submitLabel?: string;
-  onSubmit: (data: z.infer<T>) => Promise<void> | void;
+  onSubmit: (data: FieldValues) => Promise<void> | void;
 };
 
-export default function ERPFormWrapper<T extends z.ZodTypeAny>({
+export default function ERPFormWrapper({
   schema,
   defaultValues,
   children,
   submitLabel = "Submit",
   onSubmit,
-}: Props<T>) {
+}: Props) {
   const [loading, setLoading] = useState(false);
 
-  const methods = useForm<z.infer<T>>({
-    resolver: zodResolver(schema),
-    defaultValues: defaultValues as any,
+  const methods = useForm<FieldValues>({
+    resolver: zodResolver(schema as any),
+    defaultValues,
   });
 
-  async function handleValidSubmit(data: z.infer<T>) {
+  async function handleValidSubmit(data: FieldValues) {
     try {
       setLoading(true);
       await onSubmit(data);
