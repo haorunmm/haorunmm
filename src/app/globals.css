@@ -1,0 +1,85 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f1f5f9;
+  --foreground: #0f172a;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+input,
+textarea,
+select {
+  background: #ffffff !important;
+  color: #0f172a !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #94a3b8 !important;
+}
+
+table,
+thead,
+tbody,
+tr,
+td,
+th {
+  color: #0f172a;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.erp-page {
+  min-height: 100vh;
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.erp-card {
+  background: #ffffff;
+  color: #0f172a;
+  border: 1px solid #e2e8f0;
+  border-radius: 1.5rem;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08);
+}
+
+.erp-table {
+  width: 100%;
+  background: #ffffff;
+  color: #0f172a;
+  border-collapse: collapse;
+}
+
+.erp-table th {
+  background: #f8fafc;
+  color: #0f172a;
+  font-weight: 700;
+}
+
+.erp-table td {
+  color: #0f172a;
+}
+
+.bg-white {
+  color: #0f172a;
+}
+
+.text-white input,
+.text-white textarea,
+.text-white select {
+  color: #0f172a !important;
+}
