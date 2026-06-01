@@ -11,12 +11,12 @@ export default function ProductCard({ product }: { product: any }) {
     const res = await fetch("/api/add-to-cart", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ sku: product.SKU, qty: 1 })
+      body: JSON.stringify({ sku: product.SKU, qty: 1 }),
     });
-    const data = await res.json();
 
+    const data = await res.json();
     if (data.success) setAvailable(data.available);
-    else alert(data.message || "Failed to add to cart");
+    else alert(data.message);
   };
 
   return (
