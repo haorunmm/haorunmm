@@ -3,32 +3,32 @@
 import { ReactNode, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import type { ZodTypeAny } from "zod";
+import type { z } from "zod";
 import GlobalLoading from "./GlobalLoading";
 
-type Props = {
-  schema: ZodTypeAny;
-  defaultValues?: Record<string, any>;
+type Props<T extends z.ZodTypeAny> = {
+  schema: T;
+  defaultValues?: Partial<z.infer<T>>;
   children: ReactNode;
   submitLabel?: string;
-  onSubmit: (data: any) => Promise<void> | void;
+  onSubmit: (data: z.infer<T>) => Promise<void> | void;
 };
 
-export default function ERPFormWrapper({
+export default function ERPFormWrapper<T extends z.ZodTypeAny>({
   schema,
   defaultValues,
   children,
   submitLabel = "Submit",
   onSubmit,
-}: Props) {
+}: Props<T>) {
   const [loading, setLoading] = useState(false);
 
-  const methods = useForm({
+  const methods = useForm<z.infer<T>>({
     resolver: zodResolver(schema),
-    defaultValues,
+    defaultValues: defaultValues as any,
   });
 
-  async function handleValidSubmit(data: any) {
+  async function handleValidSubmit(data: z.infer<T>) {
     try {
       setLoading(true);
       await onSubmit(data);
@@ -42,6 +42,7 @@ export default function ERPFormWrapper({
       <form
         onSubmit={methods.handleSubmit(handleValidSubmit)}
         className="relative"
+        noValidate
       >
         {loading && <GlobalLoading />}
         {children}
