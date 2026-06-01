@@ -27,7 +27,7 @@ export default async function AuditPage() {
 
         <div className="grid gap-5 md:grid-cols-4">
           <Card title="Total Logs" value={rows.length} />
-          <Card title="Today" value={rows.filter(x => String(x.Date || "").includes(new Date().getFullYear())).length} />
+          <Card title="Today" value={rows.filter(x => String(x.Date || "").includes(String(new Date().getFullYear()))).length} />
           <Card title="Users" value={[...new Set(rows.map(x => x.User))].length} />
           <Card title="Modules" value={[...new Set(rows.map(x => x.Module))].length} />
         </div>
